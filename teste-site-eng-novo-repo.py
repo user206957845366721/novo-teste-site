@@ -128,36 +128,36 @@ def gerar_pdf(df_com_preços):
         return buffer
  
  # Função principal
- def main():
-     st.title("Calculadora de Orçamento")
+     def main():
+         st.title("Calculadora de Orçamento")
+     
+         # Carregar a planilha de produtos
+         df = carregar_planilha()
  
-     # Carregar a planilha de produtos
-     df = carregar_planilha()
- 
-     if df is not None:
-         # Selecionar os produtos
-         df_selecionados = selecionar_produtos(df)
+         if df is not None:
+             # Selecionar os produtos
+             df_selecionados = selecionar_produtos(df)
          
-         if not df_selecionados.empty:
-             # Adicionar preços e descontos aos produtos
-             df_com_preços = adicionar_preços_descontos(df_selecionados)
+             if not df_selecionados.empty:
+                 # Adicionar preços e descontos aos produtos
+                 df_com_preços = adicionar_preços_descontos(df_selecionados)
              
-             # Calcular o total do orçamento
-             df_com_preços, total = calcular_orçamento(df_com_preços)
+                 # Calcular o total do orçamento
+                 df_com_preços, total = calcular_orçamento(df_com_preços)
  
-             # Exibir o orçamento calculado
-             st.write("Orçamento Calculado:")
-             st.dataframe(df_com_preços)
+                 # Exibir o orçamento calculado
+                 st.write("Orçamento Calculado:")
+                 st.dataframe(df_com_preços)
  
-             # Botão para gerar o PDF do orçamento
-             if st.button("Gerar Orçamento em PDF"):
-                 buffer_pdf = gerar_pdf(df_com_preços)
-                 if buffer_pdf:
-                     st.download_button(
-                         label="Baixar Orçamento em PDF",
-                         data=buffer_pdf,
-                         file_name="orcamento.pdf",
-                         mime="application/pdf"
-                     )
+                 # Botão para gerar o PDF do orçamento
+                 if st.button("Gerar Orçamento em PDF"):
+                     buffer_pdf = gerar_pdf(df_com_preços)
+                     if buffer_pdf:
+                         st.download_button(
+                             label="Baixar Orçamento em PDF",
+                             data=buffer_pdf,
+                             file_name="orcamento.pdf",
+                             mime="application/pdf"
+                         )
  
- if __name__ == "__main__":
+     if __name__ == "__main__":
