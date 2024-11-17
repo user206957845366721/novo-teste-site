@@ -122,7 +122,7 @@ def gerar_pdf(df_com_preços):
         pdf.cell(40, 10, f"R$ {row['Preço com desconto']:.2f}", border=1)
         pdf.ln()
 
-        buffer = BytesIO()
+        buffer = io.BytesIO()
         pdf.output(buffer)
         buffer.seek(0)
         return buffer
