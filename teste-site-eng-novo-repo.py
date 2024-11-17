@@ -61,8 +61,10 @@ def adicionar_preços_descontos(df):
             with st.expander(f"Produto: {row['DESCRIÇÃO']}"):
                 preço = st.number_input(f"Preço de {row['DESCRIÇÃO']}", min_value=0.0, value=row['R$'], key=f"preço_{index}")
                 desconto = st.number_input(f"Desconto (%) para {row['DESCRIÇÃO']}", min_value=0.0, max_value=100.0, value=row['DESCONTO'], key=f"desconto_{index}")
+                quantidade = st.number_input(f"Quantidade de {row['DESCRIÇÃO']}", min_value=1, value=1, key=f"quantidade_{index}")
                 df.at[index, 'R$'] = preço
                 df.at[index, 'DESCONTO'] = desconto
+                df.at[index, 'QUANTIDADE'] = quantidade
         return df
     else:
         st.error("O DataFrame de produtos está vazio.")
