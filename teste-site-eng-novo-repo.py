@@ -110,12 +110,13 @@ def gerar_pdf(df_com_preços):
         pdf.cell(40, 10, f"R$ {row['Total']:.2f}", border=1)
         pdf.ln()
 
-    # Salvar o PDF em um buffer de memória (BytesIO)
-    buffer = io.BytesIO()
-    pdf.output(buffer)
-    buffer.seek(0)
+temp_dir = "/tmp/orcamentos"
+if not os.path.exists(temp_dir):
+    os.makedirs(temp_dir)
 
-    return buffer
+caminho_arquivo_pdf = os.path.join(temp_dir, "orcamento.pdf")
+pdf.output(caminho_arquivo_pdf)
+return caminho_arquivo_pdf
 
 # Função principal do Streamlit
 def main():
@@ -137,14 +138,16 @@ def main():
 
             # Gerar PDF quando botão for pressionado
             if st.button("Gerar orçamento em PDF"):
-                buffer_pdf = gerar_pdf(df_com_preços)
-                if buffer_pdf:
-                    st.download_button(
-                        label="Baixar Orçamento em PDF",
-                        data=buffer_pdf,
-                        file_name="orcamento.pdf",
-                        mime="application/pdf"
-                    )
+                caminho_pdf = gerar_pdf(df_com_preços)
+                if caminho_pdf:
+                    with open(caminho_pdf, "rb") as f:
+                        st.download_button(
+                            label="Baixar orçamento em PDF",
+                            data=f,
+                            file_name="orcamento.pdf",
+                            mime="application/pdf"
+                        )
+
 
 if __name__ == "__main__":
     main()
