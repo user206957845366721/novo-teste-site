@@ -52,16 +52,23 @@ def selecionar_produtos(df):
         st.error("A coluna 'DESCRIÇÃO' não foi encontrada no DataFrame.")
     return pd.DataFrame()
 
-# Função para adicionar preços e descontos aos produtos
-def adicionar_preços_descontos(df):
+# Função para adicionar preços, descontos e quantidades aos produtos
+def adicionar_preços_descontos_quantidade(df):
     if df is not None:
         if 'DESCONTO' not in df.columns:
             df['DESCONTO'] = 0.0  # Adiciona a coluna DESCONTO caso não exista
+        if 'QUANTIDADE' not in df.columns:
+            df['QUANTIDADE'] = 1  # Adiciona a coluna QUANTIDADE caso não exista
+
         for index, row in df.iterrows():
             with st.expander(f"Produto: {row['DESCRIÇÃO']}"):
+                # Input para preço e desconto
                 preço = st.number_input(f"Preço de {row['DESCRIÇÃO']}", min_value=0.0, value=row['R$'], key=f"preço_{index}")
                 desconto = st.number_input(f"Desconto (%) para {row['DESCRIÇÃO']}", min_value=0.0, max_value=100.0, value=row['DESCONTO'], key=f"desconto_{index}")
+                # Input para quantidade
                 quantidade = st.number_input(f"Quantidade de {row['DESCRIÇÃO']}", min_value=1, value=1, key=f"quantidade_{index}")
+                
+                # Atualiza os valores no DataFrame
                 df.at[index, 'R$'] = preço
                 df.at[index, 'DESCONTO'] = desconto
                 df.at[index, 'QUANTIDADE'] = quantidade
@@ -70,16 +77,23 @@ def adicionar_preços_descontos(df):
         st.error("O DataFrame de produtos está vazio.")
     return pd.DataFrame()
 
-# Função para calcular o orçamento
+# Função para calcular o orçamento considerando as quantidades
 def calcular_orçamento(df_com_preços):
     if df_com_preços is not None and 'R$' in df_com_preços.columns and 'DESCONTO' in df_com_preços.columns:
         if 'Preço com desconto' not in df_com_preços.columns:
             df_com_preços['Preço com desconto'] = 0.0
+        if 'Total' not in df_com_preços.columns:
+            df_com_preços['Total'] = 0.0
         total = 0
         for index, row in df_com_preços.iterrows():
+            # Calcula o preço com desconto
             preço_com_desconto = row['R$'] * (1 - row['DESCONTO'] / 100)
+            # Calcula o total com quantidade
+            total_com_quantidade = preço_com_desconto * row['QUANTIDADE']
+            
             df_com_preços.at[index, 'Preço com desconto'] = preço_com_desconto
-            total += preço_com_desconto
+            df_com_preços.at[index, 'Total'] = total_com_quantidade
+            total += total_com_quantidade
         return df_com_preços, total
     else:
         st.error("Colunas 'R$' ou 'DESCONTO' ausentes.")
@@ -102,14 +116,18 @@ def gerar_pdf(df_com_preços, caminho_arquivo):
     pdf.cell(40, 10, "Descrição", border=1)
     pdf.cell(40, 10, "Preço", border=1)
     pdf.cell(40, 10, "Desconto", border=1)
+    pdf.cell(40, 10, "Quantidade", border=1)
     pdf.cell(40, 10, "Preço com Desconto", border=1)
+    pdf.cell(40, 10, "Total", border=1)
     pdf.ln()
 
     for index, row in df_com_preços.iterrows():
         pdf.cell(40, 10, row['DESCRIÇÃO'], border=1)
         pdf.cell(40, 10, f"R$ {row['R$']:.2f}", border=1)
         pdf.cell(40, 10, f"{row['DESCONTO']}%", border=1)
+        pdf.cell(40, 10, f"{row['QUANTIDADE']}", border=1)
         pdf.cell(40, 10, f"R$ {row['Preço com desconto']:.2f}", border=1)
+        pdf.cell(40, 10, f"R$ {row['Total']:.2f}", border=1)
         pdf.ln()
 
     # Salvar o PDF no caminho especificado
@@ -134,8 +152,8 @@ def main():
         # Selecionar produtos
         df_selecionados = selecionar_produtos(df)
         if not df_selecionados.empty:
-            # Adicionar preços e descontos
-            df_com_preços = adicionar_preços_descontos(df_selecionados)
+            # Adicionar preços, descontos e quantidades
+            df_com_preços = adicionar_preços_descontos_quantidade(df_selecionados)
             # Calcular orçamento
             df_com_preços, total = calcular_orçamento(df_com_preços)
             st.write("Orçamento Calculado:")
