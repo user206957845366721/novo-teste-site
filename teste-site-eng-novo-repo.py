@@ -127,8 +127,8 @@ diretorio = os.path.dirname(caminho_arquivo)
 if not os.path.exists(diretorio) and diretorio != ' ':
     os.makedirs(diretorio)
 
-pdf.output(caminho_arquivo)
 caminho_arquivo = "Downloads/arquivo.pdf"
+pdf.output(caminho_arquivo)
 gerar_pdf(df_com_preços, caminho_arquivo)
  
 def main():
