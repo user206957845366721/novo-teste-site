@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from fpdf import FPDF
 import io
+import os
 
 st.set_page_config(
     page_title="Calculadora de Orçamentos",
@@ -122,10 +123,13 @@ def gerar_pdf(df_com_preços):
         pdf.cell(40, 10, f"R$ {row['Preço com desconto']:.2f}", border=1)
         pdf.ln()
 
-        buffer = io.BytesIO()
-        pdf.output(buffer)
-        buffer.seek(0)
-        return buffer
+diretorio = os.path.dirname(caminho_arquivo)
+if not os.path.exists(diretorio) and diretorio != ' ':
+    os.makedirs(diretorio)
+
+pdf.output(caminho_arquivo)
+caminho_arquivo = "Downloads/arquivo.pdf"
+gerar_pdf(df_com_preços, caminho_arquivo)
  
 def main():
     st.title("Calculadora de Orçamento")
