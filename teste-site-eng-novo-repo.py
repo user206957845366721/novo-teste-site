@@ -112,7 +112,7 @@ def gerar_pdf(df_com_preços):
 
     # Salvar o PDF em um buffer de memória (BytesIO)
     buffer = io.BytesIO()
-    pdf.output(name=buffer)
+    pdf.output(buffer)
     buffer.seek(0)
 
     return buffer
