@@ -1,28 +1,8 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 from fpdf import FPDF
 import os
-
-# Configurações da página Streamlit
-st.set_page_config(
-    page_title="Calculadora de Orçamentos",
-    page_icon="🧮",
-    layout="centered",
-    initial_sidebar_state="expanded",
-    menu_items={
-        'Get Help': 'https://docs.streamlit.io',
-        'Report a bug': 'https://docs.streamlit.io',
-        'About': "# Programação Engenharia Civil"
-    }
-)
-
-# Cabeçalho e imagem do site
-with st.container():
-    st.image("tech.jpg", use_column_width=True)
-    
-st.title("Bem-vindo/a!")
-st.header("Calculadora de Orçamentos - Eng. Civil 2024")
+import io
 
 # Função para carregar a planilha
 def carregar_planilha():
@@ -100,7 +80,7 @@ def calcular_orçamento(df_com_preços):
     return df_com_preços, 0
 
 # Função para gerar o PDF do orçamento
-def gerar_pdf(df_com_preços, caminho_arquivo):
+def gerar_pdf(df_com_preços):
     if df_com_preços.empty:
         st.warning("O DataFrame está vazio. Não é possível gerar o PDF.")
         return None
@@ -130,16 +110,12 @@ def gerar_pdf(df_com_preços, caminho_arquivo):
         pdf.cell(40, 10, f"R$ {row['Total']:.2f}", border=1)
         pdf.ln()
 
-    # Salvar o PDF no caminho especificado
-    try:
-        diretorio = os.path.dirname(caminho_arquivo)
-        if not os.path.exists(diretorio) and diretorio != '':
-            os.makedirs(diretorio)
+    # Salvar o PDF em um buffer de memória (BytesIO)
+    buffer = io.BytesIO()
+    pdf.output(buffer)
+    buffer.seek(0)
 
-        pdf.output(caminho_arquivo)
-        st.success(f"Orçamento gerado com sucesso! Você pode baixá-lo [aqui](/{caminho_arquivo})")
-    except Exception as e:
-        st.error(f"Erro ao gerar o PDF: {e}")
+    return buffer
 
 # Função principal do Streamlit
 def main():
@@ -161,8 +137,14 @@ def main():
 
             # Gerar PDF quando botão for pressionado
             if st.button("Gerar orçamento em PDF"):
-                caminho_arquivo = "Downloads/orcamento.pdf"  # Caminho do arquivo PDF
-                gerar_pdf(df_com_preços, caminho_arquivo)
+                buffer_pdf = gerar_pdf(df_com_preços)
+                if buffer_pdf:
+                    st.download_button(
+                        label="Baixar Orçamento em PDF",
+                        data=buffer_pdf,
+                        file_name="orcamento.pdf",
+                        mime="application/pdf"
+                    )
 
 if __name__ == "__main__":
     main()
