@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from fpdf import FPDF
-from io import BytesIO
+import io
 
 st.set_page_config(
     page_title="Calculadora de Orçamentos",
