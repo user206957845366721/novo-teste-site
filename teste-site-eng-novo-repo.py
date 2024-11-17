@@ -110,9 +110,10 @@ def gerar_pdf(df_com_preços):
         pdf.cell(40, 10, f"R$ {row['Total']:.2f}", border=1)
         pdf.ln()
 
-temp_dir = "/tmp/orcamentos"
-if not os.path.exists(temp_dir):
-    os.makedirs(temp_dir)
+    # Criar um diretório temporário para armazenar o PDF
+    temp_dir = "/tmp/orcamentos"
+    if not os.path.exists(temp_dir):
+        os.makedirs(temp_dir)
 
     # Caminho do arquivo PDF gerado
     caminho_arquivo_pdf = os.path.join(temp_dir, "orcamento.pdf")
@@ -121,7 +122,8 @@ if not os.path.exists(temp_dir):
     # Retornar o caminho do arquivo gerado
     return caminho_arquivo_pdf
 
-# Função principal do Streamlit
+
+# Função principal do app
 def main():
     st.title("Calculadora de Orçamento")
 
@@ -143,14 +145,14 @@ def main():
             if st.button("Gerar orçamento em PDF"):
                 caminho_pdf = gerar_pdf(df_com_preços)
                 if caminho_pdf:
+                    # Permitir que o usuário baixe o arquivo PDF
                     with open(caminho_pdf, "rb") as f:
                         st.download_button(
-                            label="Baixar orçamento em PDF",
+                            label="Baixar Orçamento em PDF",
                             data=f,
                             file_name="orcamento.pdf",
                             mime="application/pdf"
                         )
-
 
 if __name__ == "__main__":
     main()
