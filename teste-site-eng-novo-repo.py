@@ -114,9 +114,11 @@ temp_dir = "/tmp/orcamentos"
 if not os.path.exists(temp_dir):
     os.makedirs(temp_dir)
 
-caminho_arquivo_pdf = os.path.join(temp_dir, "orcamento.pdf")
+    # Caminho do arquivo PDF gerado
+    caminho_arquivo_pdf = os.path.join(temp_dir, "orcamento.pdf")
+    pdf.output(caminho_arquivo_pdf)
 
-pdf.output(caminho_arquivo_pdf)
+    # Retornar o caminho do arquivo gerado
     return caminho_arquivo_pdf
 
 # Função principal do Streamlit
