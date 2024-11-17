@@ -150,4 +150,5 @@ if st.button("Gerar orçamento em PDF"):
             mime="application/pdf"
         )
 
-_name_=="__main__":
+if _name_=="__main__":
+    main()
