@@ -2,9 +2,9 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from fpdf import FPDF
-import io
 import os
 
+# Configurações da página Streamlit
 st.set_page_config(
     page_title="Calculadora de Orçamentos",
     page_icon="🧮",
@@ -23,19 +23,6 @@ with st.container():
     
 st.title("Bem-vindo/a!")
 st.header("Calculadora de Orçamentos - Eng. Civil 2024")
-
-# Customização do estilo
-st.markdown(
-    """
-    <style>
-        .css-1m8jjsw edgvbvh3 {
-        background-color: #135fa6; /* COR FUNDO */
-        color: white; /* COR TEXTO */
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)  
 
 # Função para carregar a planilha
 def carregar_planilha():
@@ -97,7 +84,7 @@ def calcular_orçamento(df_com_preços):
     return df_com_preços, 0
 
 # Função para gerar o PDF do orçamento
-def gerar_pdf(df_com_preços):
+def gerar_pdf(df_com_preços, caminho_arquivo):
     if df_com_preços.empty:
         st.warning("O DataFrame está vazio. Não é possível gerar o PDF.")
         return None
@@ -123,36 +110,39 @@ def gerar_pdf(df_com_preços):
         pdf.cell(40, 10, f"R$ {row['Preço com desconto']:.2f}", border=1)
         pdf.ln()
 
-diretorio = os.path.dirname(caminho_arquivo)
-if not os.path.exists(diretorio) and diretorio != ' ':
-    os.makedirs(diretorio)
+    # Salvar o PDF no caminho especificado
+    try:
+        diretorio = os.path.dirname(caminho_arquivo)
+        if not os.path.exists(diretorio) and diretorio != '':
+            os.makedirs(diretorio)
 
-caminho_arquivo = "Downloads/arquivo.pdf"
-pdf.output(caminho_arquivo)
-gerar_pdf(df_com_preços, caminho_arquivo)
- 
+        pdf.output(caminho_arquivo)
+        st.success(f"Orçamento gerado com sucesso! Você pode baixá-lo [aqui](/{caminho_arquivo})")
+    except Exception as e:
+        st.error(f"Erro ao gerar o PDF: {e}")
+
+# Função principal do Streamlit
 def main():
     st.title("Calculadora de Orçamento")
 
-df = carregar_planilha()
+    # Carregar planilha
+    df = carregar_planilha()
 
-if df is not None:
-    df_selecionados = selecionar_produtos(df)
-    if not df_selecionados.empty:
-        df_com_preços = adicionar_preços_descontos(df_selecionados)
-        df_com_preços, total = calcular_orçamento(df_com_preços)
-        st.write("Orçamento Calculado:")
-        st.dataframe(df_com_preços)
+    if df is not None:
+        # Selecionar produtos
+        df_selecionados = selecionar_produtos(df)
+        if not df_selecionados.empty:
+            # Adicionar preços e descontos
+            df_com_preços = adicionar_preços_descontos(df_selecionados)
+            # Calcular orçamento
+            df_com_preços, total = calcular_orçamento(df_com_preços)
+            st.write("Orçamento Calculado:")
+            st.dataframe(df_com_preços)
 
-if st.button("Gerar orçamento em PDF"):
-    buffer_pdf = gerar_pdf(df_com_preços)
-    if buffer_pdf:
-        st.download_button(
-            label="Baixar Orçamento em PDF",
-            data=buffer_pdf,
-            file_name="orçamento.pdf",
-            mime="application/pdf"
-        )
+            # Gerar PDF quando botão for pressionado
+            if st.button("Gerar orçamento em PDF"):
+                caminho_arquivo = "Downloads/orcamento.pdf"  # Caminho do arquivo PDF
+                gerar_pdf(df_com_preços, caminho_arquivo)
 
-if __name__=="__main__":
+if __name__ == "__main__":
     main()
