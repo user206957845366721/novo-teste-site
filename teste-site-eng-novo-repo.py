@@ -116,6 +116,7 @@ if not os.path.exists(temp_dir):
 
 caminho_arquivo_pdf = os.path.join(temp_dir, "orcamento.pdf")
 pdf.output(caminho_arquivo_pdf)
+
 return caminho_arquivo_pdf
 
 # Função principal do Streamlit
